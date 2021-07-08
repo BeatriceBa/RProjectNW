@@ -1,0 +1,132 @@
+---
+title: "NeedlemanWunsch"
+author: "Beatrice Baldassarre"
+date: "`r Sys.Date()`"
+output: BiocStyle::html_document
+vignette: >
+  %\VignetteIndexEntry{NeedlemanWunsch}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+```{r setup}
+library(NeedlemanWunsch)
+```
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+
+# Introduction
+
+Sequence alignment is a way of arranging sequences of DNA, RNA, or protein to identify regions of similarity that may be a consequence of functional, structural, or evolutionary relationships between the sequences. The alignment of exactly two sequences is called pairwise alignment, and it can be performed globally or locally.  The Needleman-Wunsch package provides functions to perform a pairwise global sequence alignment using the Needleman-Wunsch algorithm.
+
+# Functions
+
+## Align two sequences
+
+Aligning two sequences using the *Needleman-Wunsch algorithm* is now an easy task. With the **globalAlignnmentNeedlemanWunsch** function. What the user needs are the costs of matches and mismatches, the gap penalty and the two sequences.
+
+```{r}
+# Perform global sequence alignment
+globalAlignnmentNeedlemanWunsch <- function(matchCost, mismatchCost, gapPenalty, sequenceA, sequenceB) {
+    scoresMatrix <- creatingMatrix(matchCost, mismatchCost, gapPenalty, sequenceA, sequenceB)
+    alignment <- performTraceback(scoresMatrix,sequenceA,sequenceB)
+
+    result <- list(scoresMatrix = scoresMatrix,
+                   matrixDirection = alignment$matrixDirection,
+                   alignmentA = alignment$alignmentA,
+                   alignmentB = alignment$alignmentB)
+    return(result)
+}
+print(globalAlignnmentNeedlemanWunsch(7,-3,-4,"GTT","GCATT"))
+```
+
+## Creating the scores matrix
+
+The first step of the Needleman-Wunsch algorithm is the creation of *scores matrix*. The function **creatingMatrix** computes this matrix. As for the globalAlignmentNeedlemanWunsch function, what the user needs are the costs of matches and mismatches, the gap penalty and the two sequences.
+
+```{r}
+# Creation of the scores matrix
+creatingMatrix <- function(matchCost, mismatchCost, gapPenalty, sequenceA, sequenceB) {
+    matrix <- matrix(0, nrow = nchar(sequenceA)+1, ncol = nchar(sequenceB)+1)
+
+    for(i in 2:nrow(matrix)) {
+        matrix[i,1] <- gapPenalty * (i-1)
+    }
+
+    for(j in 2:ncol(matrix)) {
+        matrix[1,j] <- gapPenalty * (j-1)
+    }
+
+    for(i in 2:nrow(matrix)) {
+        for(j in 2:ncol(matrix)){
+            top <- matrix[i-1,j] + gapPenalty
+            left <- matrix[i,j-1] + gapPenalty
+            if (isItAMatch(sequenceA,sequenceB,i,j))    diagonal <- matrix[i-1,j-1] + matchCost
+            else    diagonal <- matrix[i-1,j-1] + mismatchCost
+            matrix[i,j] <- max(top,left,diagonal)
+        }
+    }
+    return(matrix)
+}
+print(creatingMatrix(7,-3,-4,"GTT","GCATT"))
+
+```
+
+## Traceback 
+
+In order to align two sequences, the creation of the scores matrix is followed by the *traceback* step. The function **performTraceback** generates a matrix with the directions of the alignment while computing the alignment itself. It takes as input a scores matrix and two sequences. 
+```{r}
+# Traceback step
+performTraceback <- function(matrix, sequenceA, sequenceB) {
+    matrixDirection <- matrix
+    alignmentA <- ''
+    alignmentB <- ''
+    i <- nrow(matrixDirection)
+    j <- ncol(matrixDirection)
+    while (i>1 | j>1) {
+        matrixDirection[i,j] <- "*"
+        if(isItAMatch(sequenceA,sequenceB,i,j)) {
+            alignmentA <- paste(substring(sequenceA, i-1, i-1),alignmentA)
+            alignmentB <- paste(substring(sequenceB, j-1, j-1),alignmentB)
+            i <- i-1
+            j <- j-1
+        }
+        else {
+            top <- matrix[i-1,j]
+            left <- matrix[i,j-1]
+            diagonal <- matrix[i-1,j-1]
+
+            if (top == max(c(top,left,diagonal))) {
+                alignmentA <- paste(substring(sequenceA, i-1, i-1),alignmentA)
+                alignmentB <- paste("-",alignmentB)
+                i <- i-1
+            }
+
+            else if (left == max(c(top,left,diagonal))){
+                alignmentB <- paste(substring(sequenceB, j-1, j-1),alignmentB)
+                alignmentA <- paste("-", alignmentA)
+                j <- j-1
+            }
+
+            else  {
+                alignmentA <- paste(substring(sequenceA, i-1, i-1),alignmentA)
+                alignmentB <- paste(substring(sequenceB, j-1, j-1),alignmentB)
+                i <- i-1
+                j <- j-1
+            }
+
+        }
+
+    }
+    result <- list(matrixDirection = matrixDirection,
+                   alignmentA = alignmentA,
+                   alignmentB = alignmentB)
+    return(result)
+}
+```

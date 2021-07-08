@@ -38,3 +38,6 @@ gapPenalty <- -4
 result <- globalAlignnmentNeedlemanWunsch(matchCost,mismatchCost,gapPenalty,sequenceA,sequenceB)
 
 }
+\references{
+\url{https://en.wikipedia.org/wiki/Needleman-Wunsch_algorithm}
+}

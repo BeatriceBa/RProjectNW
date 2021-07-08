@@ -7,10 +7,19 @@ Authors@R:
         family = "Baldassarre",
         role = c("aut", "cre"),
         email = "beabaldassarre@outlook.com")
-Description: This package implements a pairwise global sequence alignment method
-    to find the optimal global sequence alignment between two nucleotide 
-    sequences using the Needleman-Wunsch algorithm.
+Description: This package implements a pairwise global sequence alignment method.
+    The objective is to find the optimal global sequence alignment between two nucleotide 
+    sequences using the Needleman-Wunsch algorithm. It also provides functions to calculate
+    separately the score matrix and the direction matrix with alignment.
+biocViews: Software, Annotation, Alignment 
 License: GPL-2
 Encoding: UTF-8
-LazyData: true
+LazyData: false
 RoxygenNote: 7.1.1
+Suggests: 
+    BiocStyle,
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+VignetteBuilder: knitr
+Config/testthat/edition: 3

@@ -29,6 +29,8 @@ creatingMatrix <- function(matchCost, mismatchCost, gapPenalty, sequenceA, seque
 
     if (typeof(sequenceA)!="character" | typeof(sequenceB)!="character") stop("sequenceA or sequenceB are not strings, you dummy!")
 
+    if (is.null(sequenceA) | is.null(sequenceB) | sequenceA == "" | sequenceB == "") stop("sequenceA or sequenceB are not valid. (You cannot align empty strings, but I am sure you know that already. Nice try!)")
+
     # Creates a MxN matrix filled with 0's, where
     # M = number of characters of sequenceA + 1
     # N = number of characters of sequenceB + 1
@@ -85,6 +87,8 @@ isItAMatch <- function (sequenceA, sequenceB, i, j) {
 
     if (!is.numeric(i) | !is.numeric(j)) stop("Are you sure you passed the right indexes?")
 
+    if (is.null(sequenceA) | is.null(sequenceB) | sequenceA == "" | sequenceB == "") stop("sequenceA or sequenceB are not valid. (You cannot align empty strings, but I am sure you know that already. Nice try!)")
+
     characterA <- substring(sequenceA, i-1, i-1)
     characterB <- substring(sequenceB, j-1, j-1)
     if (characterA == characterB) return(TRUE)
@@ -111,6 +115,10 @@ performTraceback <- function(matrix, sequenceA, sequenceB) {
     if (is.null(matrix)) stop("Matrix is null!")
 
     if (!is.numeric(matrix)) stop("Matrix is not numeric!")
+
+    if (is.null(sequenceA) | is.null(sequenceB) | sequenceA == "" | sequenceB == "") stop("sequenceA or sequenceB are not valid. (You cannot align empty strings, but I am sure you know that already. Nice try!)")
+
+    if (nrow(matrix) != nchar(sequenceA)+1 | ncol(matrix) != nchar(sequenceB)+1) stop("Are you sure the matrix you gave as input is referring to the correct strings? (NOTE: the matrix must be nchar(sequenceA)+1 X nchar(sequenceB)+1")
 
     matrixDirection <- matrix
     alignmentA <- ''
@@ -211,3 +219,4 @@ globalAlignnmentNeedlemanWunsch <- function(matchCost, mismatchCost, gapPenalty,
     result <- list(scoresMatrix = scoresMatrix, matrixDirection = alignment$matrixDirection, alignmentA = alignment$alignmentA, alignmentB = alignment$alignmentB)
     return(result)
 }
+

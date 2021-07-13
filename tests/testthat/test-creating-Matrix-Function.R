@@ -22,3 +22,15 @@ test_that("returns error if creatingMatrix receives a non string sequenceB", {
     sequenceB <- 1
     expect_error(creatingMatrix(7,-3,-4,"GTT",sequenceB))
 })
+
+test_that("returns error if creatingMatrix receives a NULL string as a sequenceA", {
+    sequenceA <- NULL
+    expect_error(creatingMatrix(7,-3,-4,sequenceA,"GCATT"))
+})
+
+test_that("returns error if creatingMatrix receives an empty string as a sequenceB", {
+    sequenceB <- ""
+    expect_error(creatingMatrix(7,-3,-4,"GTT",sequenceB))
+})
+
+
